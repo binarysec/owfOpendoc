@@ -23,12 +23,25 @@ class opendoc extends wf_agg {
 			"/usr/bin/zip"
 		);
 		
-
 		$this->unziper = $this->core_pref->register(
 			"unzip_bin",
 			"UNZIP Binary",
 			CORE_PREF_VARCHAR,
 			"/usr/bin/unzip"
+		);
+		
+		$this->opendocument = $this->core_pref->register(
+			"opendocument_bin",
+			"OpenDocument service drawer",
+			CORE_PREF_VARCHAR,
+			"/usr/bin/libreoffice"
+		);
+		
+		$this->python = $this->core_pref->register(
+			"python_bin",
+			"Python language binary",
+			CORE_PREF_VARCHAR,
+			"/usr/bin/python"
 		);
 		
 	}
