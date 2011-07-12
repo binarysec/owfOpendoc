@@ -7,6 +7,10 @@ class opendoc extends wf_agg {
 
 	public $ziper;
 	public $unziper;
+	public $opendocument;
+	public $python;
+	public $od_host;
+	public $od_port;
 	
 	public function loader($wf) {
 		$this->wf = $wf;
@@ -42,6 +46,20 @@ class opendoc extends wf_agg {
 			"Python language binary",
 			CORE_PREF_VARCHAR,
 			"/usr/bin/python"
+		);
+		
+		$this->od_host = $this->core_pref->register(
+			"od_host",
+			"OpenDocument export service host (listening IP)",
+			CORE_PREF_VARCHAR,
+			"localhost"
+		);
+		
+		$this->od_port = $this->core_pref->register(
+			"od_port",
+			"OpenDocument export service port (listening IP port)",
+			CORE_PREF_VARCHAR,
+			"8100"
 		);
 		
 	}
