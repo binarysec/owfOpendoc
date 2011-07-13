@@ -47,13 +47,7 @@ class opendoc_service {
 				$ret =  pcntl_waitpid($pid, $status, WNOHANG);
 				if($ret == -1)
 					break;
-				
-				
-				var_dump($ret);
-				var_dump($status);
 			}
-			
-			
 		} 
 		else {
 			echo posix_getppid()." speaking, $cmd\n";
