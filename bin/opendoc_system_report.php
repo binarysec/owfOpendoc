@@ -1,10 +1,7 @@
 <?php
 
 class opendoc_system_report {
-
 	private $a_opendoc;
-	
-	
 	public function __construct($ini) {
 		$this->wf = new web_framework($ini);
 
@@ -12,13 +9,8 @@ class opendoc_system_report {
 		$this->a_opendoc = $this->wf->opendoc();
 		
 		$idoc = $this->a_opendoc->instance("opendoc/system_report.odt");
-		
 		$tpl = $idoc->set_template("content.xml");
-		
-		if(function_exists("apache_get_version"))
-			$server = apache_get_version();
-		else
-			$server = $_SERVER["SERVER_SOFTWARE"];
+
 			
 		$in = array(
 			"version" => WF_VERSION,
@@ -28,15 +20,14 @@ class opendoc_system_report {
 			"zend" => zend_version(),
 			"db" => $this->wf->db->get_driver_banner(),
 			"cache" => $this->wf->core_cacher()->get_banner(),
-			"server" => $server,
+			"server" => "CLI",
 			"modules" => &$this->wf->modules,
 		);
-
+	
 		$tpl->set_vars($in);
 
-
-		$idoc->save(dirname(__file__)."/hehe.odt");
-	
+		$idoc->save($_SERVER['PWD']."/owf_system_report.odt");
+		$idoc->export($_SERVER['PWD']."/owf_system_report.pdf");
 	}
 
 }

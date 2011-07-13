@@ -1,5 +1,8 @@
 <?php
 
+define("OD_FILE_PDF",  0);
+define("OD_FILE_HTML", 1);
+
 class opendoc_file {
 	private $wf;
 	private $od_name;
@@ -7,6 +10,8 @@ class opendoc_file {
 	private $template = array();
 	private $random;
 	private $opendoc;
+	private $file_type;
+	private $save_to = false;
 	
 	public function __construct($wf, $odn, $odfile) {
 		$this->wf = $wf;
@@ -14,6 +19,7 @@ class opendoc_file {
 		$this->od_file = $odfile;
 		$this->random = rand();
 		$this->opendoc = $this->wf->opendoc();
+		$this->opendoc_client = $this->wf->opendoc_client();
 	}
 	
 	public function __destruct() {
@@ -82,11 +88,28 @@ class opendoc_file {
 		}
 		
 		system("cd $ctx/$od; zip -r $to *");
+		
+		$this->save_to = $to;
 
 	}
 	
-	public function export() {
-	
+	public function export($to, $type=OD_FILE_PDF) {
+		if(!$this->save_to) {
+			echo "you must save the document before\n";
+			return(false);
+		}
+		
+		$this->opendoc_client->connect();
+		$this->file_type = $type;
+		
+		
+		$this->opendoc_client->export(
+			$this->save_to,
+			$to,
+			$type
+		);
+
+		return(true);
 	}
 		
 
