@@ -10,7 +10,10 @@ class opendoc_system_report {
 		
 		$idoc = $this->a_opendoc->instance("opendoc/system_report.odt");
 		$tpl = $idoc->set_template("content.xml");
-
+		$idoc->copy_file(
+			__file__, 
+			"test.php"
+		);
 			
 		$in = array(
 			"version" => WF_VERSION,

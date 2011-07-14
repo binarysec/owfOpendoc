@@ -12,6 +12,7 @@ class opendoc_file {
 	private $opendoc;
 	private $file_type;
 	private $save_to = false;
+	private $files = array();
 	
 	public function __construct($wf, $odn, $odfile) {
 		$this->wf = $wf;
@@ -45,15 +46,13 @@ class opendoc_file {
 	}
 	
 	public function copy_file($from, $to) {
-	
+		$this->files[] = array($from, $to);
 	}
 	
 	public function save($to) {
-
 		/* create template context */
 		$ctx = "/tmp/".$this->random;
-		var_dump($ctx);
-		
+
 		if(!is_dir($ctx)) {
 			/* must create the directory */
 			$this->wf->create_dir("$ctx/null.null");
@@ -66,7 +65,15 @@ class opendoc_file {
 		$this->wf->create_dir("$ctx/$od/null.null");
 		
 		/* extract the source */
-		system("cd $ctx/$od; unzip ".$this->od_file);
+		@system("cd $ctx/$od; unzip ".$this->od_file);
+		
+		/* add new files */
+		foreach($this->files as $k => $v) {
+			$to = "$ctx/$od/$v[1]";
+			@unlink($to);
+			$this->wf->create_dir($to);
+			@copy($v[0], $to);
+		}
 		
 		/* apply template */
 		foreach($this->template as $infile => $dao) {
@@ -87,6 +94,7 @@ class opendoc_file {
 			);
 		}
 		
+		unlink($to);
 		system("cd $ctx/$od; zip -r $to *");
 		
 		$this->save_to = $to;
