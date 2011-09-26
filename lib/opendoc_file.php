@@ -81,16 +81,20 @@ class opendoc_file {
 			
 			/* file need to be html entities */
 			if($dao[1] == true) {
+				$contents = file_get_contents($tfile);
+				$enc = mb_detect_encoding($contents, 'UTF-8', true);
 				file_put_contents(
 					$tfile, 
-					html_entity_decode(file_get_contents($tfile))
+					html_entity_decode($enc != 'UTF-8' ? utf8_encode($contents) : $contents)
 				);
 			}
+			$contents = $dao[0]->fetch("$od/$infile");
+			$enc = mb_detect_encoding($contents, 'UTF-8', true);
 
 			/* patch the file */
 			file_put_contents(
 				$tfile, 
-				html_entity_decode($dao[0]->fetch("$od/$infile"))
+				html_entity_decode($enc != 'UTF-8' ? utf8_encode($contents) : $contents)
 			);
 		}
 		
