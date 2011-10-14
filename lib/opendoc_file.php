@@ -81,24 +81,24 @@ class opendoc_file {
 			
 			/* file need to be html entities */
 			if($dao[1] == true) {
-				$file_contents = file_get_contents($tfile);
-				$fenc = mb_detect_encoding($file_contents, 'UTF-8', true);
-				$file_contents = html_entity_decode($fenc != 'UTF-8' ? utf8_encode($file_contents) : $file_contents);
-				file_put_contents($tfile, $file_contents);
-			}
-			$contents = $dao[0]->fetch("$od/$infile");
-			$enc = mb_detect_encoding($contents, 'UTF-8', true);
-			
-			if($enc != 'UTF-8' && $dao[1] == true && $fenc == 'UTF-8') {
-				file_put_contents($tfile, utf8_decode($file_contents));
-				$contents = $dao[0]->fetch("$od/$infile");
+				/* Encode tpl vars */
+				foreach($dao[0]->get_vars() as $key => $var)
+					if(is_string($var))
+						$dao[0]->set($key, html_entity_decode(mb_detect_encoding($var, 'UTF-8', true) != 'UTF-8' ? utf8_encode($var) : $var, ENT_COMPAT, 'UTF-8'));
+				
+				/* Encode file */
+				$contents = file_get_contents($tfile);
 				$enc = mb_detect_encoding($contents, 'UTF-8', true);
+				file_put_contents(
+					$tfile,
+					html_entity_decode($enc != 'UTF-8' ? utf8_encode($contents) : $contents, ENT_COMPAT, 'UTF-8')
+				);
 			}
 			
 			/* patch the file */
 			file_put_contents(
-				$tfile, 
-				html_entity_decode($enc != 'UTF-8' ? utf8_encode($contents) : $contents)
+				$tfile,
+				html_entity_decode($dao[0]->fetch("$od/$infile"), ENT_COMPAT, 'UTF-8')
 			);
 		}
 		
@@ -127,9 +127,4 @@ class opendoc_file {
 
 		return(true);
 	}
-		
-
- 
-	
 }
-
