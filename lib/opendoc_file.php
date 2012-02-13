@@ -50,6 +50,8 @@ class opendoc_file {
 	}
 	
 	public function save($to) {
+		$destination = $to;
+		
 		/* create template context */
 		$ctx = "/tmp/".$this->random;
 
@@ -103,9 +105,9 @@ class opendoc_file {
 		}
 		
 		unlink($to);
-		system("cd $ctx/$od; zip -r $to *");
+		system("cd $ctx/$od; zip -r $destination *");
 		
-		$this->save_to = $to;
+		$this->save_to = $destination;
 
 	}
 	
