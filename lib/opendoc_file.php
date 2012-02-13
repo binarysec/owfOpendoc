@@ -71,10 +71,10 @@ class opendoc_file {
 		
 		/* add new files */
 		foreach($this->files as $k => $v) {
-			$to = "$ctx/$od/$v[1]";
-			@unlink($to);
-			$this->wf->create_dir($to);
-			@copy($v[0], $to);
+			$to2 = "$ctx/$od/$v[1]";
+			@unlink($to2);
+			$this->wf->create_dir($to2);
+			@copy($v[0], $to2);
 		}
 		
 		/* apply template */
