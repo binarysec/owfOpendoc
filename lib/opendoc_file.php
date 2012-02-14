@@ -50,8 +50,6 @@ class opendoc_file {
 	}
 	
 	public function save($to) {
-		$destination = $to;
-		
 		/* create template context */
 		$ctx = "/tmp/".$this->random;
 
@@ -71,10 +69,10 @@ class opendoc_file {
 		
 		/* add new files */
 		foreach($this->files as $k => $v) {
-			$to2 = "$ctx/$od/$v[1]";
-			@unlink($to2);
-			$this->wf->create_dir($to2);
-			@copy($v[0], $to2);
+			$dest = "$ctx/$od/$v[1]";
+			@unlink($dest);
+			$this->wf->create_dir($dest);
+			@copy($v[0], $dest);
 		}
 		
 		/* apply template */
@@ -105,9 +103,9 @@ class opendoc_file {
 		}
 		
 		unlink($to);
-		system("cd $ctx/$od; zip -r $destination *");
+		system("cd $ctx/$od; zip -r $to *");
 		
-		$this->save_to = $destination;
+		$this->save_to = $to;
 
 	}
 	
