@@ -1,10 +1,10 @@
 #
-# PyODConverter (Python OpenDocument Converter) v1.1 - 2009-11-14
+# PyODConverter (Python OpenDocument Converter) v1.2 - 2012-03-10
 #
 # This script converts a document from one office format to another by
 # connecting to an OpenOffice.org instance via Python-UNO bridge.
 #
-# Copyright (C) 2008-2009 Mirko Nasato <mirko@artofsolving.com>
+# Copyright (C) 2008-2012 Mirko Nasato
 # Licensed under the GNU LGPL v2.1 - http://www.gnu.org/licenses/lgpl-2.1.html
 # - or any later version.
 #
@@ -220,7 +220,7 @@ if __name__ == "__main__":
         exit(1)
 
     try:
-        converter = DocumentConverter()    
+        converter = DocumentConverter()
         converter.convert(argv[1], argv[2])
     except DocumentConversionException, exception:
         print "ERROR! " + str(exception)
@@ -228,4 +228,3 @@ if __name__ == "__main__":
     except ErrorCodeIOException, exception:
         print "ERROR! ErrorCodeIOException %d" % exception.ErrCode
         exit(1)
-
