@@ -86,7 +86,8 @@ class opendoc_server_user {
 				$this->display("transfert finished, inqueue");
 				$this->state = OD_SERVER_ST_QUEUE;
 				
-				$this->convert();
+				if(!$this->convert())
+					return false;
 			}
 		}
 		
@@ -117,11 +118,19 @@ class opendoc_server_user {
 		$cmd = $this->opendoc_server->convert." ".$this->od_file." ".$this->export_file;
 		system($cmd);
 		
-		/* got response transfert file */
-		$cmd = "transfert:finish:".filesize($this->export_file)."\n";
-		$this->wf->safe_sockwrite($this->sock, $cmd);
+		if(file_exists($this->export_file)) {
+			/* got response transfert file */
+			$cmd = "transfert:finish:".filesize($this->export_file)."\n";
+			$this->wf->safe_sockwrite($this->sock, $cmd);
 		
-		$this->state = OD_SERVER_ST_RENDER;
+			$this->state = OD_SERVER_ST_RENDER;
+		}
+		else {
+			$this->display("PDF convert failed: file ".$this->export_file." missing (maybe odt syntax error)");
+			return false;
+		}
+		
+		return true;
 	}
 	
 	private function display($msg) {
