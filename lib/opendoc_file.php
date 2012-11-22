@@ -107,7 +107,9 @@ class opendoc_file {
 			);
 		}
 		
-		unlink($to);
+		if(file_exists($to))
+			unlink($to);
+		
 		system("cd $ctx/$od; zip -r $quiet $to *");
 		
 		$this->save_to = $to;
