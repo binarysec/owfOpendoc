@@ -4,6 +4,8 @@ define("OD_FILE_PDF",  0);
 define("OD_FILE_HTML", 1);
 
 class opendoc_file {
+	var $quiet = false;
+	
 	private $wf;
 	private $od_name;
 	private $od_file;
@@ -52,6 +54,8 @@ class opendoc_file {
 	public function save($to) {
 		/* create template context */
 		$ctx = "/tmp/".$this->random;
+		
+		$quiet = ($this->quiet ? "-q" : "");
 
 		if(!is_dir($ctx)) {
 			/* must create the directory */
@@ -65,7 +69,7 @@ class opendoc_file {
 		$this->wf->create_dir("$ctx/$od/null.null");
 		
 		/* extract the source */
-		@system("cd $ctx/$od; unzip ".$this->od_file);
+		@system("cd $ctx/$od; unzip $quiet ".$this->od_file);
 		
 		/* add new files */
 		foreach($this->files as $k => $v) {
@@ -95,6 +99,7 @@ class opendoc_file {
 				);
 			}
 			
+			// sometimes throw a silent exception > it comes from the fetch on the dao
 			/* patch the file */
 			file_put_contents(
 				$tfile,
@@ -103,7 +108,7 @@ class opendoc_file {
 		}
 		
 		unlink($to);
-		system("cd $ctx/$od; zip -r $to *");
+		system("cd $ctx/$od; zip -r $quiet $to *");
 		
 		$this->save_to = $to;
 

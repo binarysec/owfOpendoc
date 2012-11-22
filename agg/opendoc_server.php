@@ -42,7 +42,6 @@ class opendoc_server_user {
 		
 		if(file_exists($this->export_file))
 			unlink($this->export_file);
-			
 		
 	}
 
