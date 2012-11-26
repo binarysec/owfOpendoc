@@ -64,7 +64,7 @@ class opendoc extends wf_agg {
 		
 	}
 	
-	public function instance($docname) {
+	public function instance($docname, $force_new = false) {
 
 		/* must be in var/od */
 		$name = "var/$docname";
@@ -75,7 +75,7 @@ class opendoc extends wf_agg {
 			return(NULL);
 		
 		/* get object from cache */
-		if(array_key_exists($docname, $this->instances))
+		if(!$force_new && array_key_exists($docname, $this->instances))
 			return($this->instances[$docname]);
 		
 		/* create the object */
