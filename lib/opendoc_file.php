@@ -15,6 +15,7 @@ class opendoc_file {
 	private $file_type;
 	private $save_to = false;
 	private $files = array();
+	private $metadata = array();
 	
 	public function __construct($wf, $odn, $odfile) {
 		$this->wf = $wf;
@@ -28,7 +29,6 @@ class opendoc_file {
 	public function __destruct() {
 		$this->wf->remove_dir("/tmp/".$this->random);
 	}
-	
 	
 	public function set_template($infile, $entities=true) {
 		if(array_key_exists($infile, $this->template))
@@ -79,6 +79,9 @@ class opendoc_file {
 			@copy($v[0], $dest);
 		}
 		
+		if(!isset($this->template["META-INF/manifest.xml"]) && !empty($this->metadata))
+			$this->set_template("META-INF/manifest.xml");
+		
 		/* apply template */
 		foreach($this->template as $infile => $dao) {
 			$tfile = "$ctx/$od/$infile";
@@ -100,10 +103,20 @@ class opendoc_file {
 			}
 			
 			// sometimes throw a silent exception > it comes from the fetch on the dao
+			/* fetch template */
+			$content = $dao[0]->fetch("$od/$infile");
+			
+			/* remove "opendoc" scripts tags */
+			$content = preg_replace("#<text:script script:language=\"opendoc\">(.*?)</text:script>#", '$1', $content);
+			
+			/* if this is the manifest, add meta data */
+			if($infile == "META-INF/manifest.xml")
+				$content = $this->__add_meta($content);
+			
 			/* patch the file */
 			file_put_contents(
 				$tfile,
-				html_entity_decode($dao[0]->fetch("$od/$infile"), ENT_COMPAT, 'UTF-8')
+				html_entity_decode($content, ENT_COMPAT, 'UTF-8')
 			);
 		}
 		
@@ -133,5 +146,49 @@ class opendoc_file {
 		);
 
 		return(true);
+	}
+	
+	public function add_meta($data) {
+		if(!isset($data["path"], $data["mime"]))
+			return false;
+		$this->metadata[] = $data;
+		return true;
+	}
+	
+	private function __add_meta($content) {
+		$moar_meta_data = "";
+		foreach($this->metadata as $datum)
+			$moar_meta_data .= " <manifest:file-entry manifest:full-path=\"$datum[path]\" manifest:media-type=\"$datum[mime]\"/>\n";
+		return preg_replace("#</manifest:manifest>#", "$moar_meta_data</manifest:manifest>", $content);
+	}
+	
+	/* add_img : to simply add an image to the document (size are given in inches) */
+	public function add_img($filepath, $name, $varname, $width, $height, $template = "content.xml", $mime = "image/png") {
+		
+		/* sanatize */
+		if(!file_exists($filepath))
+			return false;
+		
+		/* add entry to manifest */
+		$this->add_meta(array(
+			"path" => "Pictures/$name.png",
+			"mime" => $mime
+		));
+		
+		/* add file */
+		$this->copy_file($filepath, "Pictures/$name.png");
+		
+		/* content */
+		$content =
+			'<draw:frame draw:style-name="fr1" draw:name="'.$name.'" text:anchor-type="paragraph" svg:x="0.0535in" svg:y="0.1181in" svg:width="'.$width.'in" svg:height="'.$height.'in" draw:z-index="11">'.
+				'<draw:image xlink:href="Pictures/'.$name.'.png" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/>'.
+			'</draw:frame>'
+		;
+		
+		/* add variable */
+		$tpl = $this->set_template($template);
+		$tpl->merge_vars(array($varname => $content));
+		
+		return $content;
 	}
 }
