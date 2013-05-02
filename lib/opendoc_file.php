@@ -4,7 +4,7 @@ define("OD_FILE_PDF",  0);
 define("OD_FILE_HTML", 1);
 
 class opendoc_file {
-	var $quiet = false;
+	var $quiet = true;
 	
 	private $wf;
 	private $od_name;
@@ -16,6 +16,7 @@ class opendoc_file {
 	private $save_to = false;
 	private $files = array();
 	private $metadata = array();
+	private $styles = array();
 	
 	public function __construct($wf, $odn, $odfile) {
 		$this->wf = $wf;
@@ -82,9 +83,13 @@ class opendoc_file {
 		if(!isset($this->template["META-INF/manifest.xml"]) && !empty($this->metadata))
 			$this->set_template("META-INF/manifest.xml");
 		
+		$styles = $this->set_template("styles.xml");
+		$styles->merge_vars($this->styles);
+		
 		/* apply template */
 		foreach($this->template as $infile => $dao) {
 			$tfile = "$ctx/$od/$infile";
+			
 			
 			/* file need to be html entities */
 			if($dao[1] == true) {
@@ -155,6 +160,12 @@ class opendoc_file {
 		return true;
 	}
 	
+	public function add_style($data) {
+		foreach($data as $k => $v)
+			$this->styles[$k] = $v;
+		return true;
+	}
+	
 	private function __add_meta($content) {
 		$moar_meta_data = "";
 		foreach($this->metadata as $datum)
@@ -163,7 +174,7 @@ class opendoc_file {
 	}
 	
 	/* add_img : to simply add an image to the document (size are given in inches) */
-	public function add_img($filepath, $name, $varname, $width, $height, $template = "content.xml", $mime = "image/png") {
+	public function add_img($filepath, $name, $varname, $width, $height, $template = "content.xml", $mime = "image/png", $anchor="paragraph", $style_name="fr1") {
 		
 		/* sanatize */
 		if(!file_exists($filepath))
@@ -180,7 +191,7 @@ class opendoc_file {
 		
 		/* content */
 		$content =
-			'<draw:frame draw:style-name="fr1" draw:name="'.$name.'" text:anchor-type="paragraph" svg:x="0.0535in" svg:y="0.1181in" svg:width="'.$width.'in" svg:height="'.$height.'in" draw:z-index="11">'.
+			'<draw:frame draw:style-name="'.$style_name.'" draw:name="'.$name.'" text:anchor-type="'.$anchor.'" svg:x="0.0535in" svg:y="0.1181in" svg:width="'.$width.'in" svg:height="'.$height.'in" draw:z-index="11">'.
 				'<draw:image xlink:href="Pictures/'.$name.'.png" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/>'.
 			'</draw:frame>'
 		;
